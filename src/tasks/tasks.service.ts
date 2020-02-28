@@ -1,4 +1,4 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task } from './interfaces/task.interface';
@@ -6,7 +6,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { User } from 'src/auth/interfaces/user.interface';
 import { TaskStatus } from './task-status.enum';
 import * as moment from 'moment';
-import { UserObject } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class TasksService {
@@ -15,8 +14,6 @@ export class TasksService {
   constructor(
     @InjectModel('Task')
     private readonly taskModel: Model<Task>,
-    @InjectModel('User')
-    private readonly userModel: Model<UserObject>,
   ) {}
 
   async createTask(
@@ -39,6 +36,36 @@ export class TasksService {
       throw new InternalServerErrorException();
     }
     return task;
+  }
+
+  async getTaskById(id: string, user: User): Promise<Task> {
+    const task = await user.tasks.id(id);
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    return task;
+  }
+
+  async getTasks(user: User): Promise<Task[]> {
+    try {
+      const tasks = await user.tasks;
+      tasks.sort((n1, n2) => {
+        if (n1.createdAt > n2.createdAt) {
+          return -1;
+        }
+        if (n1.createdAt < n2.createdAt) {
+          return 1;
+        }
+        return 0;
+      });
+      return tasks;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get tasks for user "${user.email}".}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
 }
