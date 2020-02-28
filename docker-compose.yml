@@ -1,0 +1,8 @@
+version: '3.1'
+services:
+  mongo:
+    image: mongo
+    container_name: todo-manager
+    restart: always
+    ports: 
+      - 27017:27017
