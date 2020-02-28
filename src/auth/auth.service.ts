@@ -13,7 +13,6 @@ import { SignInDto } from './dto/signIn.dto';
 import { UserObject } from './schemas/user.schema';
 import { JwtPayload } from './jwt-payload.interface';
 import { Model } from 'mongoose';
-import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class AuthService {
