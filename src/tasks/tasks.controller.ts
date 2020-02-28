@@ -1,10 +1,11 @@
-import { Controller, Logger, Post, UsePipes, ValidationPipe, Body, UseGuards, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Logger, Post, UsePipes, ValidationPipe, Body, UseGuards, Get, Param, Delete, Patch } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { User } from 'src/auth/interfaces/user.interface';
 import { Task } from './interfaces/task.interface';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 @UseGuards(AuthGuard('jwt'))
@@ -45,5 +46,25 @@ export class TasksController {
     @GetUser() user: User,
   ): Promise<void> {
     return this.tasksService.deleteTaskById(id, user);
+  }
+
+  @Patch(':id/edit')
+  @UsePipes(ValidationPipe)
+  updateTask(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.updateTask(id, updateTaskDto, user);
+  }
+
+  @Patch(':id/update-status')
+  @UsePipes(ValidationPipe)
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.updateStatus(id, updateTaskDto, user);
   }
 }

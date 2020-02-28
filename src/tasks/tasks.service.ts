@@ -6,6 +6,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { User } from 'src/auth/interfaces/user.interface';
 import { TaskStatus } from './task-status.enum';
 import * as moment from 'moment';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -77,6 +78,35 @@ export class TasksService {
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  async updateTask(
+    id: string,
+    updateTaskDto: UpdateTaskDto,
+    user: User,
+  ): Promise<Task> {
+    const { title, description, status } = updateTaskDto;
+    const task = await this.getTaskById(id, user);
+
+    task.title = title ?? task.title;
+    task.description = description ?? task.description;
+    task.status = status ?? task.status;
+
+    await user.save();
+    return task;
+  }
+
+  async updateStatus(
+    id: string,
+    updateTaskDto: UpdateTaskDto,
+    user: User,
+  ): Promise<Task> {
+    const { status } = updateTaskDto;
+    const task = await this.getTaskById(id, user);
+    task.status = status ?? task.status;
+
+    await user.save();
+    return task;
   }
 
 }
