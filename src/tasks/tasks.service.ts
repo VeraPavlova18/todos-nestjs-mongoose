@@ -68,4 +68,15 @@ export class TasksService {
     }
   }
 
+  async deleteTaskById(id: string, user: User): Promise<void> {
+    const task = await this.getTaskById(id, user);
+    try {
+      await task.remove();
+      await user.save();
+      this.logger.verbose(`User "${user.email}" deleted task with ID "${id}".`);
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
 }

@@ -1,4 +1,4 @@
-import { Controller, Logger, Post, UsePipes, ValidationPipe, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Logger, Post, UsePipes, ValidationPipe, Body, UseGuards, Get, Param, Delete } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { User } from 'src/auth/interfaces/user.interface';
@@ -37,5 +37,13 @@ export class TasksController {
       `User "${user.email}" retrieving all tasks.}`,
     );
     return this.tasksService.getTasks(user);
+  }
+
+  @Delete('/:id')
+  deleteTaskById(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.tasksService.deleteTaskById(id, user);
   }
 }
